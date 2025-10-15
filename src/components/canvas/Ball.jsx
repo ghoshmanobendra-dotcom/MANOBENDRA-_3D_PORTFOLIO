@@ -38,6 +38,33 @@ const Ball = (props) => {
 };
 
 const BallCanvas = ({ icon }) => {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mediaQuery.matches);
+
+    const handleMediaQueryChange = (event) => {
+      setIsMobile(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleMediaQueryChange);
+    return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
+  }, []);
+
+  // On mobile, show a simple icon instead of 3D ball
+  if (isMobile) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-tertiary rounded-full">
+        <img
+          src={icon}
+          alt="technology"
+          className="w-16 h-16 object-contain"
+        />
+      </div>
+    );
+  }
+
   return (
     <Canvas
       frameloop='demand'
