@@ -4,6 +4,15 @@ import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
 
 import CanvasLoader from "../Loader";
 
+const checkWebGLSupport = () => {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext && canvas.getContext('webgl'));
+  } catch (e) {
+    return false;
+  }
+};
+
 const Computers = ({ isMobile }) => {
   const computer = useGLTF("./desktop_pc/scene.gltf");
 
@@ -31,8 +40,14 @@ const Computers = ({ isMobile }) => {
 
 const ComputersCanvas = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [webGLSupported, setWebGLSupported] = useState(true);
 
   useEffect(() => {
+    // Check WebGL support
+    const hasWebGL = checkWebGLSupport();
+    setWebGLSupported(hasWebGL);
+    console.log('WebGL Support:', hasWebGL);
+
     // Add a listener for changes to the screen size
     const mediaQuery = window.matchMedia("(max-width: 500px)");
 
@@ -52,6 +67,19 @@ const ComputersCanvas = () => {
       mediaQuery.removeEventListener("change", handleMediaQueryChange);
     };
   }, []);
+
+  // If WebGL is not supported, show a fallback message
+  if (!webGLSupported) {
+    console.log('WebGL not supported, showing fallback');
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center text-white">
+          <h3 className="text-lg font-semibold mb-2">3D Model Not Available</h3>
+          <p className="text-sm opacity-75">WebGL is not supported on this device.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Canvas

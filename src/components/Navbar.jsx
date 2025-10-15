@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaGithub } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaGithub, FaDownload } from "react-icons/fa";
 
 import { styles } from "../styles";
 import { navLinks, socialLinks } from "../constants";
@@ -59,7 +59,14 @@ const Navbar = () => {
                } hover:text-white text-[18px] font-medium cursor-pointer`}
                onClick={() => setActive(nav.title)}
              >
-               <a href={`#${nav.id}`}>{nav.title}</a>
+               {nav.id === "download-cv" ? (
+                 <a href="/Manobendra_Ghosh_CV.pdf" download="Manobendra_Ghosh_CV.pdf" className="flex items-center gap-2">
+                   <FaDownload className="text-[16px]" />
+                   {nav.title}
+                 </a>
+               ) : (
+                 <a href={`#${nav.id}`}>{nav.title}</a>
+               )}
              </li>
            ))}
            <div className='flex flex-row gap-4 ml-4'>
@@ -105,7 +112,14 @@ const Navbar = () => {
                     setActive(nav.title);
                   }}
                 >
-                  <a href={`#${nav.id}`}>{nav.title}</a>
+                  {nav.id === "download-cv" ? (
+                    <a href="/Manobendra_Ghosh_CV.pdf" download="Manobendra_Ghosh_CV.pdf" className="flex items-center gap-2">
+                      <FaDownload className="text-[14px]" />
+                      {nav.title}
+                    </a>
+                  ) : (
+                    <a href={`#${nav.id}`}>{nav.title}</a>
+                  )}
                 </li>
               ))}
               <div className='flex flex-row gap-4 mt-4'>

@@ -38,6 +38,10 @@ export const navLinks = [
     id: "contact",
     title: "Contact",
   },
+  {
+    id: "download-cv",
+    title: "Download CV",
+  },
 ];
 
 export const socialLinks = [
