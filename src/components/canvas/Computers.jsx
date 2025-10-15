@@ -18,16 +18,16 @@ const Computers = ({ isMobile }) => {
 
   return (
     <mesh>
-      <hemisphereLight intensity={0.15} groundColor='black' />
+      <hemisphereLight intensity={isMobile ? 0.1 : 0.15} groundColor='black' />
       <spotLight
         position={[-20, 50, 10]}
         angle={0.12}
         penumbra={1}
-        intensity={1}
-        castShadow
-        shadow-mapSize={1024}
+        intensity={isMobile ? 0.7 : 1}
+        castShadow={!isMobile}
+        shadow-mapSize={isMobile ? 512 : 1024}
       />
-      <pointLight intensity={1} />
+      <pointLight intensity={isMobile ? 0.5 : 1} />
       <primitive
         object={computer.scene}
         scale={isMobile ? 0.7 : 0.75}
@@ -41,6 +41,7 @@ const Computers = ({ isMobile }) => {
 const ComputersCanvas = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [webGLSupported, setWebGLSupported] = useState(true);
+  const [isLowEndDevice, setIsLowEndDevice] = useState(false);
 
   useEffect(() => {
     // Check WebGL support
@@ -48,8 +49,14 @@ const ComputersCanvas = () => {
     setWebGLSupported(hasWebGL);
     console.log('WebGL Support:', hasWebGL);
 
+    // Check for low-end devices (simple heuristic)
+    const isLowEnd = navigator.hardwareConcurrency <= 2 ||
+                     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsLowEndDevice(isLowEnd);
+    console.log('Low-end device detected:', isLowEnd);
+
     // Add a listener for changes to the screen size
-    const mediaQuery = window.matchMedia("(max-width: 500px)");
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
 
     // Set the initial value of the `isMobile` state variable
     setIsMobile(mediaQuery.matches);
@@ -68,14 +75,19 @@ const ComputersCanvas = () => {
     };
   }, []);
 
-  // If WebGL is not supported, show a fallback message
-  if (!webGLSupported) {
-    console.log('WebGL not supported, showing fallback');
+  // If WebGL is not supported or it's a low-end device, show a fallback message
+  if (!webGLSupported || isLowEndDevice) {
+    console.log('WebGL not supported or low-end device, showing fallback');
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center text-white">
           <h3 className="text-lg font-semibold mb-2">3D Model Not Available</h3>
-          <p className="text-sm opacity-75">WebGL is not supported on this device.</p>
+          <p className="text-sm opacity-75">
+            {!webGLSupported
+              ? "WebGL is not supported on this device."
+              : "3D model disabled for better performance on mobile devices."
+            }
+          </p>
         </div>
       </div>
     );
@@ -85,15 +97,17 @@ const ComputersCanvas = () => {
     <Canvas
       frameloop='demand'
       shadows
-      dpr={[1, 2]}
+      dpr={isMobile ? [1, 1.5] : [1, 2]}
       camera={{ position: [20, 3, 5], fov: 25 }}
-      gl={{ preserveDrawingBuffer: true }}
+      gl={{ preserveDrawingBuffer: true, antialias: !isMobile }}
     >
       <Suspense fallback={<CanvasLoader />}>
         <OrbitControls
           enableZoom={false}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={Math.PI / 2}
+          enablePan={false}
+          enableRotate={!isMobile}
         />
         <Computers isMobile={isMobile} />
       </Suspense>
